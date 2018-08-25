@@ -1,3 +1,5 @@
+from socket import socket, AF_INET, SOCK_STREAM
+from os import getuid
 
 class IPRangeGenerator(object):
     """
@@ -44,3 +46,20 @@ class IPRangeGenerator(object):
             self.finished = True
 
         return to_return
+
+from contextlib import closing
+def alive_check(ip, port):
+    res = False
+
+    if getuid() == 0:
+        # TODO: implement SYN scanning
+        print ("SYN scanning not implemented")
+        exit()
+        pass
+
+    else:
+        with closing(socket(AF_INET, SOCK_STREAM)) as sock:
+            sock.settimeout(0.5)
+            if sock.connect_ex((ip, port)) == 0:
+                res = True
+    return res

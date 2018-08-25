@@ -12,14 +12,22 @@ class SSH(object):
         self.username = username
         self.password = password
 
+    def full_init(self):
+        self.create_socket()
+        if self.create_session():
+            return 1
+        self.create_channel()
+        return 0
+
     def create_socket(self):
         self.socket = socket(AF_INET, SOCK_STREAM)
         self.socket.connect((self.hostname, self.port))
 
     def create_session(self):
         self.session = Session()
-        self.session.handshake(sock)
-        self.session.userauth_password(self.username, self.password)
+        self.session.set_timeout(0.5)
+        self.session.handshake(self.socket)
+        return self.session.userauth_password(self.username, self.password)
 
     def create_channel(self):
         self.channel = self.session.open_session()
@@ -37,7 +45,5 @@ class SSH(object):
     def destroy(self):
         if self.channel != None:
             self.channel.close()
-        if self.session != None:
-            self.session.close()
         if self.socket != None:
             self.socket.close()

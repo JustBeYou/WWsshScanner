@@ -2,9 +2,9 @@ from ssh2.session import Session
 from socket import socket, AF_INET, SOCK_STREAM
 
 class SSH(object):
-    self.socket  = None
-    self.session = None
-    self.channel = None
+    socket  = None
+    session = None
+    channel = None
 
     def __init__(self, hostname, port, username, password):
         self.hostname = hostname

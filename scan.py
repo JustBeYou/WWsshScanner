@@ -104,7 +104,7 @@ def main():
     # shared state between processes
     alive_ips = mgr.list()
 
-    count = cpu_count() * 100
+    count = cpu_count() * 50
     # split data
     ips_chunks = list(chunker_list(ips_list, count))
 
@@ -117,7 +117,7 @@ def main():
     print ("[*] Found {} alive IPs.".format(len(alive_ips)))
 
     Q = mgr.Queue()
-    count = cpu_count() * 100
+    count = cpu_count() * 50
     proc_count = mgr.Value('i', 0)
 
     # split data

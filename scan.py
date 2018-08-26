@@ -30,6 +30,7 @@ def init():
     arg_parser.add_argument('-a', '--attack', help="Specify IP range to attack and port number (standard port number is 22). Example: 192.168.*.*:22 . Also, running this program as root will improve speed.", required=True, dest='attack')
     arg_parser.add_argument('-c', '--command', help="Specify the command to run on the hacked host. The output will be stored in a specified or default file.", default='uname -a', dest='command')
     arg_parser.add_argument('-o', '--output', help="Specify the output file for hacked hosts.", default='data/output.txt', dest='output')
+    arg_parser.add_argument('-th', '-threads', help="Set the thread count.", default='300', dest='threads')
     args = arg_parser.parse_args()
 
     if getuid() == 0:
@@ -104,7 +105,7 @@ def main():
     # shared state between processes
     alive_ips = mgr.list()
 
-    count = cpu_count() * 50
+    count = args.threads
     # split data
     ips_chunks = list(chunker_list(ips_list, count))
 
@@ -117,7 +118,7 @@ def main():
     print ("[*] Found {} alive IPs.".format(len(alive_ips)))
 
     Q = mgr.Queue()
-    count = cpu_count() * 50
+    count = args.threads
     proc_count = mgr.Value('i', 0)
 
     # split data

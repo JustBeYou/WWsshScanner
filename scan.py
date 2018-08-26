@@ -143,4 +143,5 @@ def main():
 
     print ("[*] Finished. :D")
 
-main()
+if __name__ == "__main__":
+    main()

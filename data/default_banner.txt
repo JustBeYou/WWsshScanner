@@ -1,4 +1,2 @@
-WWsshScanner v0.1 made by littlewho
- TRIAL VERSION - end on 2th Sept
-   mihailferaru2000@gmail.com
+WWsshScanner v0.1
 -----------------------------------
